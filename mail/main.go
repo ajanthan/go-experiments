@@ -15,11 +15,11 @@ import (
 )
 
 type Mail struct {
-	ID      uint
-	Headers map[string][]string
-	Body []uint
+	ID          uint
+	Headers     map[string][]string
+	Body        []uint
 	Attachments []uint
-	Embeds []uint
+	Embeds      []uint
 }
 
 type Content struct {
@@ -29,7 +29,7 @@ type Content struct {
 	ContentType string
 	Encoding    string
 	Type        string
-	Layout        string
+	Layout      string
 	Name        string
 }
 
@@ -64,8 +64,8 @@ func main() {
 	newMail.ID = uint(len(mailBox.Mails) + 1)
 	newMail.Headers = msg.Header
 
-	ProcessMailBody(msg.Body, msg.Header, mailBox, newMail,false,false,false)
-	fmt.Printf("MailBox %v",mailBox)
+	ProcessMailBody(msg.Body, msg.Header, mailBox, newMail, false, false, false)
+	fmt.Printf("MailBox %v", mailBox)
 }
 
 func ProcessMailBody(body io.Reader, headers mail.Header, mailBox *MailBox, mail2 *Mail, isAttachment bool, isEmbeded bool, isAlt bool) error {
@@ -145,25 +145,25 @@ func ProcessMailBody(body io.Reader, headers mail.Header, mailBox *MailBox, mail
 				return err
 			}
 		}
-		altContent.Data=mailBuffer.Bytes()
+		altContent.Data = mailBuffer.Bytes()
 		if isAlt {
 			altContent.Type = "Alt"
-			mail2.Body=append(mail2.Body,altContent.ID)
+			mail2.Body = append(mail2.Body, altContent.ID)
 		} else if isEmbeded {
 			altContent.Type = "Emb"
-			altContent.Name=strings.TrimRight(strings.TrimLeft(headers.Get("Content-ID"),"<"),">")
-			altContent.Layout=strings.Split(headers.Get("Content-Disposition"),";")[0]
+			altContent.Name = strings.TrimRight(strings.TrimLeft(headers.Get("Content-ID"), "<"), ">")
+			altContent.Layout = strings.Split(headers.Get("Content-Disposition"), ";")[0]
 		} else if isAttachment {
 			altContent.Type = "Att"
-			parts:=strings.Split(headers.Get("Content-Disposition"),";")
-			altContent.Layout=parts[0]
-			altContent.Name=strings.Split(parts[1],"=")[1]
-		}else {
+			parts := strings.Split(headers.Get("Content-Disposition"), ";")
+			altContent.Layout = parts[0]
+			altContent.Name = strings.Split(parts[1], "=")[1]
+		} else {
 			altContent.Type = "Main"
-			mail2.Body=append(mail2.Body,altContent.ID)
+			mail2.Body = append(mail2.Body, altContent.ID)
 		}
 		mailBox.Contents[altContent.ID] = altContent
-		mailBox.Mails[mail2.ID]=mail2
+		mailBox.Mails[mail2.ID] = mail2
 	}
 	return nil
 }
